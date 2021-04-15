@@ -3,14 +3,18 @@ package com.example.latrecyclerview
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import  com.example.latrecyclerview.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
-    private lateinit var viewAdapter: RecyclerView.Adapter<*>
+    private lateinit var viewAdapter: TodoAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
+
+    private lateinit var viewModel: TodoViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,20 +22,21 @@ class MainActivity : AppCompatActivity() {
 
         val binding : ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        val todos = mutableListOf(
-            "bangun", "mandi", "makan", "berangkat sekolah",
-        )
-
-        binding.btnNew.setOnClickListener {
-            todos.add(binding.newText.text.toString())
-        }
+        viewModel = ViewModelProvider(this).get(TodoViewModel::class.java)
 
         viewManager = LinearLayoutManager(this)
-        viewAdapter = TodoAdapter(todos)
+        viewAdapter = TodoAdapter(viewModel)
 
-        binding.myRecyclerView.apply {
+        recyclerView = binding.myRecyclerView
+
+        recyclerView.apply {
             layoutManager = viewManager
             adapter = viewAdapter
+        }
+
+
+        binding.btnNew.setOnClickListener {
+            viewModel.todos.value!!.add(Todo(5,binding.newText.text.toString()))
         }
     }
 }
